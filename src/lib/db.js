@@ -10,7 +10,7 @@ if (!cached) {
 
 async function connectDB() {
   if (!MONGODB_URI) {
-    throw new Error('MONGODB_URI environment variable is not defined. Please create a .env.local file with MONGODB_URI=mongodb://localhost:27017/trueclean');
+    throw new Error('MONGODB_URI environment variable is not defined. Please configure the MONGODB_URI environment variable in your deployment settings.');
   }
 
   if (cached.conn) {

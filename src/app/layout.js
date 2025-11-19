@@ -50,8 +50,16 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata = {
-  title: "True Clean",
-  description: "A clean and modern website",
+  title: "True Clean - Professional Cleaning Services",
+  description: "Professional cleaning services for your home and office. Book your cleaning service today and experience the True Clean difference.",
+  keywords: "cleaning services, home cleaning, office cleaning, professional cleaners, house cleaning",
+  openGraph: {
+    title: "True Clean - Professional Cleaning Services",
+    description: "Professional cleaning services for your home and office.",
+    url: "https://true-clean.vercel.app",
+    siteName: "True Clean",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }) {

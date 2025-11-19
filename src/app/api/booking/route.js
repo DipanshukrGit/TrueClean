@@ -9,7 +9,7 @@ export async function POST(request) {
     } catch (dbError) {
       console.error('Database connection error:', dbError);
       return NextResponse.json(
-        { error: dbError.message || 'Database connection failed. Please check your MongoDB connection and .env.local file.' },
+        { error: dbError.message || 'Database connection failed. Please check your MongoDB connection configuration.' },
         { status: 500 }
       );
     }
@@ -72,7 +72,7 @@ export async function GET(request) {
     } catch (dbError) {
       console.error('Database connection error:', dbError);
       return NextResponse.json(
-        { error: dbError.message || 'Database connection failed. Please check your MongoDB connection and .env.local file.' },
+        { error: dbError.message || 'Database connection failed. Please check your MongoDB connection configuration.' },
         { status: 500 }
       );
     }
