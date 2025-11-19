@@ -39,12 +39,26 @@ export async function GET(request) {
       Booking.find().sort({ createdAt: -1 }),
     ]);
 
+    // Calculate order statistics
+    const totalOrders = bookings.length;
+    const pendingOrders = bookings.filter(b => !b.status || b.status === 'pending').length;
+    const activeOrders = bookings.filter(b => b.status === 'confirmed').length;
+    const completedOrders = bookings.filter(b => b.status === 'completed').length;
+    const cancelledOrders = bookings.filter(b => b.status === 'cancelled').length;
+
     return NextResponse.json(
       {
         contacts,
         bookings,
         totalContacts: contacts.length,
         totalBookings: bookings.length,
+        orderStats: {
+          total: totalOrders,
+          pending: pendingOrders,
+          active: activeOrders,
+          completed: completedOrders,
+          cancelled: cancelledOrders,
+        },
       },
       { status: 200 }
     );

@@ -15,8 +15,16 @@ const AdminPage = () => {
     bookings: [],
     totalContacts: 0,
     totalBookings: 0,
+    orderStats: {
+      total: 0,
+      pending: 0,
+      active: 0,
+      completed: 0,
+      cancelled: 0,
+    },
   });
-  const [activeTab, setActiveTab] = useState("contacts");
+  const [activeTab, setActiveTab] = useState("orders");
+  const [updatingOrder, setUpdatingOrder] = useState(null);
 
   // Check authentication on mount
   useEffect(() => {
@@ -102,7 +110,19 @@ const AdminPage = () => {
   const handleLogout = async () => {
     removeToken();
     setIsAuthenticated(false);
-    setSubmissions({ contacts: [], bookings: [], totalContacts: 0, totalBookings: 0 });
+    setSubmissions({ 
+      contacts: [], 
+      bookings: [], 
+      totalContacts: 0, 
+      totalBookings: 0,
+      orderStats: {
+        total: 0,
+        pending: 0,
+        active: 0,
+        completed: 0,
+        cancelled: 0,
+      },
+    });
   };
 
   const fetchSubmissions = async () => {
@@ -131,6 +151,40 @@ const AdminPage = () => {
     }
   };
 
+  const updateOrderStatus = async (orderId, status) => {
+    try {
+      setUpdatingOrder(orderId);
+      const token = getToken();
+      if (!token) {
+        alert("Authentication required");
+        return;
+      }
+
+      const response = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderId, status }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Refresh submissions to get updated data
+        await fetchSubmissions();
+      } else {
+        alert(data.error || "Failed to update order status");
+      }
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      alert("Failed to update order status");
+    } finally {
+      setUpdatingOrder(null);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchSubmissions();
@@ -140,12 +194,31 @@ const AdminPage = () => {
     }
   }, [isAuthenticated]);
 
+  const getStatusBadge = (status) => {
+    const statusStyles = {
+      pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      confirmed: "bg-blue-100 text-blue-800 border-blue-200",
+      completed: "bg-green-100 text-green-800 border-green-200",
+      cancelled: "bg-red-100 text-red-800 border-red-200",
+    };
+
+    const defaultStatus = status || "pending";
+    const style = statusStyles[defaultStatus] || statusStyles.pending;
+    const label = defaultStatus.charAt(0).toUpperCase() + defaultStatus.slice(1);
+
+    return (
+      <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${style}`}>
+        {label}
+      </span>
+    );
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-medium">Loading...</p>
         </div>
       </div>
     );
@@ -153,22 +226,27 @@ const AdminPage = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
           <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
             <p className="text-gray-600">Enter your credentials to access the admin panel</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email
               </label>
               <input
@@ -177,13 +255,13 @@ const AdminPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                 placeholder="admin@trueclean.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
               </label>
               <input
@@ -192,7 +270,7 @@ const AdminPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                 placeholder="Enter password"
               />
             </div>
@@ -200,11 +278,11 @@ const AdminPage = () => {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transform hover:scale-[1.02]"
             >
               {isLoggingIn ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                   Logging in...
                 </>
               ) : (
@@ -213,10 +291,10 @@ const AdminPage = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-500">
-            <p>Default credentials:</p>
-            <p className="font-mono">Email: admin@trueclean.com</p>
-            <p className="font-mono">Password: admin123</p>
+          <div className="mt-6 text-center text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
+            <p className="font-semibold mb-1">Default credentials:</p>
+            <p className="font-mono text-xs">Email: admin@trueclean.com</p>
+            <p className="font-mono text-xs">Password: admin123</p>
           </div>
         </div>
       </div>
@@ -224,77 +302,131 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
               <p className="text-sm text-gray-600 mt-1">
-                Manage all form submissions
+                Manage orders and customer inquiries
               </p>
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-6 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-md hover:shadow-lg font-semibold flex items-center gap-2"
             >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
               Logout
             </button>
           </div>
         </div>
       </header>
 
-      {/* Stats */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Order Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          {/* Total Orders */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-blue-100 text-sm font-medium mb-1">Total Orders</p>
+            <p className="text-4xl font-bold">{submissions.orderStats?.total || 0}</p>
+          </div>
+
+          {/* Pending Orders */}
+          <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-yellow-100 text-sm font-medium mb-1">Pending</p>
+            <p className="text-4xl font-bold">{submissions.orderStats?.pending || 0}</p>
+          </div>
+
+          {/* Active Orders */}
+          <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-indigo-100 text-sm font-medium mb-1">Active</p>
+            <p className="text-4xl font-bold">{submissions.orderStats?.active || 0}</p>
+          </div>
+
+          {/* Completed Orders */}
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-green-100 text-sm font-medium mb-1">Completed</p>
+            <p className="text-4xl font-bold">{submissions.orderStats?.completed || 0}</p>
+          </div>
+
+          {/* Cancelled Orders */}
+          <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-red-100 text-sm font-medium mb-1">Cancelled</p>
+            <p className="text-4xl font-bold">{submissions.orderStats?.cancelled || 0}</p>
+          </div>
+        </div>
+
+        {/* Contact Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Contacts</p>
-                <p className="text-3xl font-bold text-primary mt-2">
+                <p className="text-sm font-semibold text-gray-600 mb-1">Total Contacts</p>
+                <p className="text-3xl font-bold text-primary">
                   {submissions.totalContacts}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
+              <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Bookings</p>
-                <p className="text-3xl font-bold text-secondary mt-2">
+                <p className="text-sm font-semibold text-gray-600 mb-1">Total Bookings</p>
+                <p className="text-3xl font-bold text-secondary">
                   {submissions.totalBookings}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-secondary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
+              <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
             </div>
@@ -302,88 +434,166 @@ const AdminPage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="border-b border-gray-200">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="border-b border-gray-200 bg-gray-50">
             <nav className="flex -mb-px">
               <button
+                onClick={() => setActiveTab("orders")}
+                className={`px-8 py-4 text-sm font-semibold border-b-3 transition-all ${
+                  activeTab === "orders"
+                    ? "border-primary text-primary bg-white"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                Clean Orders ({submissions.totalBookings})
+              </button>
+              <button
                 onClick={() => setActiveTab("contacts")}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-8 py-4 text-sm font-semibold border-b-3 transition-all ${
                   activeTab === "contacts"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-primary text-primary bg-white"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 Contact Forms ({submissions.totalContacts})
-              </button>
-              <button
-                onClick={() => setActiveTab("bookings")}
-                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "bookings"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Booking Requests ({submissions.totalBookings})
               </button>
             </nav>
           </div>
 
           {/* Content */}
           <div className="p-6">
-            {activeTab === "contacts" && (
+            {activeTab === "orders" && (
               <div className="space-y-4">
-                {submissions.contacts.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <p>No contact form submissions yet.</p>
+                {submissions.bookings.length === 0 ? (
+                  <div className="text-center py-16 text-gray-500">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <p className="text-lg font-medium">No booking requests yet.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                             Date
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Customer
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Email
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Contact
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Phone
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Location
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Service
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Services
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Message
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Actions
                           </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {submissions.contacts.map((contact) => (
-                            <tr key={contact._id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {new Date(contact.createdAt).toLocaleString()}
-                                  </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {contact.name}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {contact.email}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {contact.phone}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {contact.service || "-"}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                                {contact.message || "-"}
-                              </td>
-                            </tr>
-                          ))}
+                        {submissions.bookings.map((booking) => (
+                          <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {new Date(booking.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-semibold text-gray-900">{booking.customer_name}</div>
+                              <div className="text-sm text-gray-500">{booking.customer_email}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {booking.customer_phone}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {booking.customer_city && booking.customer_state
+                                ? `${booking.customer_city}, ${booking.customer_state}`
+                                : booking.customer_city || booking.customer_state || "-"}
+                              {booking.customer_date && (
+                                <div className="text-xs text-gray-400 mt-1">
+                                  Date: {booking.customer_date}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                              {booking.selected_services &&
+                              Object.keys(booking.selected_services).length > 0
+                                ? Object.entries(booking.selected_services)
+                                    .filter(([_, service]) => service.selected && service.quantity > 0)
+                                    .map(([key, service]) => (
+                                      <div key={key} className="mb-1 text-xs">
+                                        <span className="font-medium">{key.replace(/([A-Z])/g, " $1").trim()}:</span> {service.quantity} {service.unit}
+                                      </div>
+                                    ))
+                                : "-"}
+                              {booking.other_service && (
+                                <div className="text-xs text-gray-400 mt-1 italic">
+                                  Other: {booking.other_service}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {getStatusBadge(booking.status)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <div className="flex items-center gap-2">
+                                {booking.status !== 'confirmed' && booking.status !== 'completed' && booking.status !== 'cancelled' && (
+                                  <button
+                                    onClick={() => updateOrderStatus(booking._id, 'confirmed')}
+                                    disabled={updatingOrder === booking._id}
+                                    className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+                                  >
+                                    {updatingOrder === booking._id ? '...' : 'Confirm'}
+                                  </button>
+                                )}
+                                {booking.status === 'confirmed' && (
+                                  <button
+                                    onClick={() => updateOrderStatus(booking._id, 'completed')}
+                                    disabled={updatingOrder === booking._id}
+                                    className="px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+                                  >
+                                    {updatingOrder === booking._id ? '...' : 'Complete'}
+                                  </button>
+                                )}
+                                {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                                  <button
+                                    onClick={() => {
+                                      if (confirm('Are you sure you want to cancel this order?')) {
+                                        updateOrderStatus(booking._id, 'cancelled');
+                                      }
+                                    }}
+                                    disabled={updatingOrder === booking._id}
+                                    className="px-3 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+                                  >
+                                    {updatingOrder === booking._id ? '...' : 'Cancel'}
+                                  </button>
+                                )}
+                                {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                                  <button
+                                    onClick={() => updateOrderStatus(booking._id, 'pending')}
+                                    disabled={updatingOrder === booking._id}
+                                    className="px-3 py-1.5 bg-yellow-600 text-white text-xs font-semibold rounded-lg hover:bg-yellow-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+                                  >
+                                    {updatingOrder === booking._id ? '...' : 'Reset'}
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -391,83 +601,69 @@ const AdminPage = () => {
               </div>
             )}
 
-            {activeTab === "bookings" && (
+            {activeTab === "contacts" && (
               <div className="space-y-4">
-                {submissions.bookings.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <p>No booking requests yet.</p>
+                {submissions.contacts.length === 0 ? (
+                  <div className="text-center py-16 text-gray-500">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-lg font-medium">No contact form submissions yet.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                             Date
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                             Name
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                             Email
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                             Phone
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Location
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Service
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Preferred Date
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Services
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Other Request
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Message
                           </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {submissions.bookings.map((booking) => (
-                            <tr key={booking._id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {new Date(booking.createdAt).toLocaleString()}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {booking.customer_name}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {booking.customer_email}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {booking.customer_phone}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {booking.customer_city && booking.customer_state
-                                  ? `${booking.customer_city}, ${booking.customer_state}`
-                                  : booking.customer_city || booking.customer_state || "-"}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {booking.customer_date || "Flexible"}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-500">
-                                {booking.selected_services &&
-                                Object.keys(booking.selected_services).length > 0
-                                  ? Object.entries(booking.selected_services)
-                                      .filter(([_, service]) => service.selected && service.quantity > 0)
-                                      .map(([key, service]) => (
-                                        <div key={key} className="mb-1">
-                                          {key.replace(/([A-Z])/g, " $1").trim()}: {service.quantity} {service.unit}
-                                        </div>
-                                      ))
-                                  : "-"}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                                {booking.other_service || "-"}
-                              </td>
-                            </tr>
-                          ))}
+                        {submissions.contacts.map((contact) => (
+                          <tr key={contact._id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {new Date(contact.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                              {contact.name}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {contact.email}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {contact.phone}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {contact.service || "-"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                              {contact.message || "-"}
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -482,4 +678,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
