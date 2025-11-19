@@ -1,0 +1,375 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --primary: #01502e;
+  --secondary: #2e7d32;
+  --tertiary: #a8d5ba;
+  --background: #fafffa;
+  --foreground: #171717;
+  --surface: #fafffa;
+  --surface-alt: #e1f1e7;
+  --card-surface: #ffffff;
+  --border: #b5ddc2;
+  --border-muted: rgba(181, 221, 194, 0.6);
+  --muted-foreground: #3f5a4d;
+  --accent-strong: #00603a;
+  --accent-muted: rgba(0, 96, 58, 0.7);
+  --nav-surface: rgba(250, 255, 250, 0.95);
+  --nav-surface-hover: rgba(225, 241, 231, 0.85);
+  --nav-border: rgba(181, 221, 194, 0.85);
+  --nav-border-muted: rgba(181, 221, 194, 0.45);
+  --nav-link: #00603a;
+  --nav-link-hover: #01502e;
+  --nav-link-muted: rgba(0, 96, 58, 0.7);
+  --nav-star: #01502e;
+  --theme-toggle-bg: rgba(0, 96, 58, 0.08);
+  --theme-toggle-bg-hover: rgba(0, 96, 58, 0.14);
+  --theme-toggle-border: rgba(0, 96, 58, 0.18);
+  --theme-toggle-icon: #0b4b2a;
+  --theme-toggle-ring: rgba(0, 96, 58, 0.35);
+  --theme-toggle-ring-offset: #fafffa;
+  --button-primary-bg: #ffffff;
+  --button-primary-hover-bg: #00603a;
+  --button-primary-text: #00603a;
+  --button-primary-text-hover: #ffffff;
+  --button-primary-border: #b5ddc2;
+  --button-primary-glow: rgba(0, 96, 58, 0.45);
+  --button-primary-spark: #00603a;
+  --button-secondary-bg: #0b4b2a;
+  --button-secondary-hover-bg: #0a4526;
+  --button-secondary-text: #fafffa;
+  --button-secondary-text-hover: #ffffff;
+  --button-secondary-border: #b5ddc2;
+  --button-secondary-glow: rgba(11, 75, 42, 0.6);
+  --button-secondary-spark: #ffffff;
+  --focus-ring: rgba(0, 96, 58, 0.35);
+  --focus-ring-offset: #fafffa;
+  --trust-card-bg: #a8d5ba;
+  --trust-card-border: rgba(1, 80, 46, 0.12);
+  --trust-card-text: #0b4b2a;
+  --trust-card-text-muted: rgba(11, 75, 42, 0.75);
+  --trust-card-emphasis: #00603a;
+  --trust-card-icon-bg: rgba(1, 80, 46, 0.08);
+  --faq-card-bg: rgba(250, 255, 250, 0.92);
+  --faq-card-hover: rgba(224, 241, 231, 0.65);
+  --faq-border: rgba(1, 80, 46, 0.15);
+  --faq-border-hover: rgba(1, 80, 46, 0.3);
+  --faq-shadow: rgba(1, 80, 46, 0.04);
+  --faq-shadow-active: rgba(1, 80, 46, 0.08);
+  --faq-question: #0b4b2a;
+  --faq-answer: rgba(11, 75, 42, 0.75);
+  --faq-answer-bg: rgba(232, 244, 236, 0.65);
+  --faq-icon-bg: rgba(168, 213, 186, 0.85);
+  --faq-icon-bg-active: rgba(1, 80, 46, 0.9);
+  --faq-icon-color: #01502e;
+  --faq-icon-color-active: #ecfdf5;
+  --faq-overlay-top: rgba(250, 255, 250, 0.9);
+  --faq-overlay-bottom: rgba(250, 255, 250, 0.9);
+  --testimonial-card-bg: #e1f1e7;
+  --testimonial-border: rgba(1, 80, 46, 0.1);
+  --testimonial-shadow: rgba(1, 80, 46, 0.08);
+  --testimonial-shadow-hover: rgba(1, 80, 46, 0.18);
+  --testimonial-text: #1f3c2e;
+  --testimonial-name: #0b4b2a;
+  --testimonial-role: rgba(11, 75, 42, 0.7);
+  --testimonial-avatar-bg: #0b4b2a;
+  --testimonial-avatar-text: #fafffa;
+  --testimonial-overlay: rgba(250, 255, 250, 0.85);
+  --success-overlay-gradient: linear-gradient(
+    135deg,
+    rgba(1, 80, 46, 0.25) 0%,
+    rgba(1, 80, 46, 0.18) 50%,
+    rgba(1, 80, 46, 0.12) 100%
+  );
+  --success-popup-bg: #fafffa;
+  --success-popup-border: rgba(181, 221, 194, 0.6);
+  --success-popup-title: #01502e;
+  --success-popup-subtext: rgba(0, 80, 46, 0.7);
+  --success-popup-icon-bg: #01502e;
+  --success-popup-icon-fg: #fafffa;
+  --success-popup-button-bg: #ffffff;
+  --success-popup-button-border: rgba(181, 221, 194, 1);
+  --success-popup-button-text: #01502e;
+  --success-popup-button-hover: rgba(250, 255, 250, 0.9);
+  --success-popup-close: rgba(1, 80, 46, 0.8);
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-poppins);
+  --font-work-sans: var(--font-work-sans);
+  --font-serif: var(--font-libre-baskerville);
+}
+
+html.dark {
+  color-scheme: dark;
+  --primary: #01502e;
+  --secondary: #2e7d32;
+  --tertiary: #86efac;
+  --background: #04130c;
+  --foreground: #ecfdf5;
+  --surface: #071f15;
+  --surface-alt: #0f2f22;
+  --card-surface: #12392b;
+  --border: rgba(88, 214, 160, 0.45);
+  --border-muted: rgba(74, 222, 128, 0.28);
+  --muted-foreground: #bdfbd7;
+  --accent-strong: #34d399;
+  --accent-muted: rgba(52, 211, 153, 0.75);
+  --nav-surface: rgba(7, 31, 21, 0.95);
+  --nav-surface-hover: rgba(19, 53, 37, 0.9);
+  --nav-border: rgba(74, 222, 128, 0.35);
+  --nav-border-muted: rgba(52, 211, 153, 0.25);
+  --nav-link: #d1fae5;
+  --nav-link-hover: #34d399;
+  --nav-link-muted: rgba(209, 250, 229, 0.7);
+  --nav-star: #34d399;
+  --theme-toggle-bg: rgba(52, 211, 153, 0.12);
+  --theme-toggle-bg-hover: rgba(52, 211, 153, 0.2);
+  --theme-toggle-border: rgba(52, 211, 153, 0.25);
+  --theme-toggle-icon: #bbf7d0;
+  --theme-toggle-ring: rgba(52, 211, 153, 0.45);
+  --theme-toggle-ring-offset: #04130c;
+  --button-primary-bg: #12392b;
+  --button-primary-hover-bg: #19513b;
+  --button-primary-text: #bbf7d0;
+  --button-primary-text-hover: #ecfdf5;
+  --button-primary-border: rgba(74, 222, 128, 0.3);
+  --button-primary-glow: rgba(74, 222, 128, 0.45);
+  --button-primary-spark: #4ade80;
+  --button-secondary-bg: #1a4634;
+  --button-secondary-hover-bg: #225742;
+  --button-secondary-text: #ecfdf5;
+  --button-secondary-text-hover: #ffffff;
+  --button-secondary-border: rgba(74, 222, 128, 0.4);
+  --button-secondary-glow: rgba(52, 211, 153, 0.5);
+  --button-secondary-spark: #34d399;
+  --focus-ring: rgba(52, 211, 153, 0.45);
+  --focus-ring-offset: #04130c;
+  --trust-card-bg: rgba(52, 211, 153, 0.12);
+  --trust-card-border: rgba(52, 211, 153, 0.25);
+  --trust-card-text: #bbf7d0;
+  --trust-card-text-muted: rgba(187, 247, 208, 0.7);
+  --trust-card-emphasis: #34d399;
+  --trust-card-icon-bg: rgba(52, 211, 153, 0.18);
+  --faq-card-bg: rgba(18, 58, 42, 0.65);
+  --faq-card-hover: rgba(28, 83, 60, 0.75);
+  --faq-border: rgba(74, 222, 128, 0.32);
+  --faq-border-hover: rgba(74, 222, 128, 0.55);
+  --faq-shadow: rgba(6, 30, 21, 0.25);
+  --faq-shadow-active: rgba(34, 197, 94, 0.45);
+  --faq-question: #e3fcef;
+  --faq-answer: rgba(220, 252, 231, 0.82);
+  --faq-answer-bg: rgba(12, 52, 36, 0.75);
+  --faq-icon-bg: rgba(52, 211, 153, 0.25);
+  --faq-icon-bg-active: rgba(52, 211, 153, 0.55);
+  --faq-icon-color: #34d399;
+  --faq-icon-color-active: #052e1f;
+  --faq-overlay-top: rgba(12, 40, 29, 0.78);
+  --faq-overlay-bottom: rgba(12, 40, 29, 0.78);
+  --testimonial-card-bg: rgba(22, 70, 52, 0.68);
+  --testimonial-border: rgba(74, 222, 128, 0.25);
+  --testimonial-shadow: rgba(4, 24, 17, 0.35);
+  --testimonial-shadow-hover: rgba(34, 197, 94, 0.45);
+  --testimonial-text: rgba(220, 252, 231, 0.82);
+  --testimonial-name: #ecfdf5;
+  --testimonial-role: rgba(187, 247, 208, 0.7);
+  --testimonial-avatar-bg: rgba(52, 211, 153, 0.35);
+  --testimonial-avatar-text: #04130c;
+  --testimonial-overlay: rgba(12, 52, 36, 0.78);
+  --success-overlay-gradient: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.2) 0%,
+    rgba(12, 64, 44, 0.35) 100%
+  );
+  --success-popup-bg: rgba(10, 40, 28, 0.94);
+  --success-popup-border: rgba(52, 211, 153, 0.35);
+  --success-popup-title: #ecfdf5;
+  --success-popup-subtext: rgba(209, 250, 229, 0.78);
+  --success-popup-icon-bg: rgba(52, 211, 153, 0.85);
+  --success-popup-icon-fg: #04130c;
+  --success-popup-button-bg: rgba(12, 52, 36, 0.95);
+  --success-popup-button-border: rgba(52, 211, 153, 0.45);
+  --success-popup-button-text: #ecfdf5;
+  --success-popup-button-hover: rgba(17, 67, 47, 0.95);
+  --success-popup-close: rgba(52, 211, 153, 0.85);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  /* padding-top: 140px; Account for fixed navbar height with padding */
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Enhanced smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 140px; /* Account for fixed navbar */
+  overflow-x: hidden;
+}
+
+html.dark body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Custom smooth scrolling animation for better visual feedback */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Add a subtle scroll indicator effect */
+  body {
+    scroll-behavior: smooth;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: #122a1f;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1c3c2d;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #27513e;
+}
+
+html.dark .bg-\[\#FAFFFA\],
+html.dark .bg-\[\\#FAFFFA\] {
+  background-color: var(--surface) !important;
+}
+
+html.dark .bg-\[\#E1F1E7\],
+html.dark .bg-\[\\#E1F1E7\] {
+  background-color: var(--surface-alt) !important;
+}
+
+html.dark .border-\[\#B5DDC2\],
+html.dark .border-\[\\#B5DDC2\] {
+  border-color: var(--border-muted) !important;
+}
+
+html.dark .border-gray-100,
+html.dark .border-gray-200 {
+  border-color: var(--border-muted) !important;
+}
+
+html.dark .text-\[\#1a1a1a\],
+html.dark .text-\[\#0B4B2A\],
+html.dark .text-\[\#2D2D2D\],
+html.dark .text-gray-900 {
+  color: var(--foreground) !important;
+}
+
+html.dark .text-\[\#00603A\],
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-gray-500,
+html.dark .text-gray-400,
+html.dark .text-\[\#00603A\]\/70,
+html.dark .text-\[\#00603A\]\/60 {
+  color: var(--muted-foreground) !important;
+}
+
+html.dark .from-\[\#FAFFFA\],
+html.dark .from-\[\\#FAFFFA\] {
+  --tw-gradient-from: var(--surface) !important;
+  --tw-gradient-to: rgb(0 0 0 / 0);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+html.dark .text-white {
+  color: #f8fafc;
+}
+
+html.dark .bg-white {
+  background-color: var(--surface) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: rgba(209, 250, 229, 0.55);
+}
+
+.trust-card-icon {
+  color: var(--trust-card-emphasis);
+}
+
+.trust-card-icon svg path,
+.trust-card-icon svg rect,
+.trust-card-icon svg circle,
+.trust-card-icon svg polygon {
+  fill: currentColor !important;
+}
+
+.testimonial-card {
+  background: var(--testimonial-card-bg);
+  border-color: var(--testimonial-border);
+  box-shadow: 0 6px 24px var(--testimonial-shadow);
+}
+
+.testimonial-card:hover {
+  box-shadow: 0 12px 32px var(--testimonial-shadow-hover);
+}
+
+.testimonial-text {
+  color: var(--testimonial-text);
+}
+
+.testimonial-name {
+  color: var(--testimonial-name);
+}
+
+.testimonial-role {
+  color: var(--testimonial-role);
+}
+
+.testimonial-avatar {
+  background: var(--testimonial-avatar-bg);
+}
+
+.testimonial-avatar-text {
+  color: var(--testimonial-avatar-text);
+}
+
+.success-popup-overlay {
+  background: var(--success-overlay-gradient);
+  backdrop-filter: blur(6px) saturate(115%);
+  -webkit-backdrop-filter: blur(6px) saturate(115%);
+  transition: background 0.3s ease;
+}
