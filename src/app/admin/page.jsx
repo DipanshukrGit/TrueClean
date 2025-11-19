@@ -123,6 +123,7 @@ const AdminPage = () => {
         cancelled: 0,
       },
     });
+    router.push('/');
   };
 
   const fetchSubmissions = async () => {
@@ -215,10 +216,10 @@ const AdminPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-medium">Loading...</p>
+          <p className="mt-4 text-[var(--foreground)] font-medium">Loading...</p>
         </div>
       </div>
     );
@@ -226,16 +227,16 @@ const AdminPage = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)] px-4">
+        <div className="max-w-md w-full bg-[var(--card-surface)] rounded-2xl shadow-2xl p-8 border border-[var(--border)]">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
-            <p className="text-gray-600">Enter your credentials to access the admin panel</p>
+            <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">Admin Login</h1>
+            <p className="text-[var(--muted-foreground)]">Enter your credentials to access the admin panel</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -246,7 +247,7 @@ const AdminPage = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-[var(--foreground)] mb-2">
                 Email
               </label>
               <input
@@ -255,13 +256,13 @@ const AdminPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-[var(--card-surface)] text-[var(--foreground)]"
                 placeholder="admin@trueclean.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-[var(--foreground)] mb-2">
                 Password
               </label>
               <input
@@ -270,7 +271,7 @@ const AdminPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-[var(--card-surface)] text-[var(--foreground)]"
                 placeholder="Enter password"
               />
             </div>
@@ -291,7 +292,7 @@ const AdminPage = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
+          <div className="mt-6 text-center text-sm text-[var(--muted-foreground)] bg-[var(--surface-alt)] rounded-lg p-4">
             <p className="font-semibold mb-1">Default credentials:</p>
             <p className="font-mono text-xs">Email: admin@trueclean.com</p>
             <p className="font-mono text-xs">Password: admin123</p>
@@ -302,16 +303,16 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
-      <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-[var(--card-surface)] shadow-lg border-b border-[var(--border)] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Admin Dashboard
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">
                 Manage orders and customer inquiries
               </p>
             </div>
@@ -400,10 +401,10 @@ const AdminPage = () => {
 
         {/* Contact Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+          <div className="bg-[var(--card-surface)] rounded-2xl shadow-lg p-6 border border-[var(--border)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-600 mb-1">Total Contacts</p>
+                <p className="text-sm font-semibold text-[var(--muted-foreground)] mb-1">Total Contacts</p>
                 <p className="text-3xl font-bold text-primary">
                   {submissions.totalContacts}
                 </p>
@@ -416,10 +417,10 @@ const AdminPage = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+          <div className="bg-[var(--card-surface)] rounded-2xl shadow-lg p-6 border border-[var(--border)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-600 mb-1">Total Bookings</p>
+                <p className="text-sm font-semibold text-[var(--muted-foreground)] mb-1">Total Bookings</p>
                 <p className="text-3xl font-bold text-secondary">
                   {submissions.totalBookings}
                 </p>
@@ -434,15 +435,15 @@ const AdminPage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="border-b border-gray-200 bg-gray-50">
+        <div className="bg-[var(--card-surface)] rounded-2xl shadow-lg border border-[var(--border)] overflow-hidden">
+          <div className="border-b border-[var(--border)] bg-[var(--surface-alt)]">
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab("orders")}
                 className={`px-8 py-4 text-sm font-semibold border-b-3 transition-all ${
                   activeTab === "orders"
-                    ? "border-primary text-primary bg-white"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    ? "border-primary text-primary bg-[var(--card-surface)]"
+                    : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
                 }`}
               >
                 Clean Orders ({submissions.totalBookings})
@@ -451,8 +452,8 @@ const AdminPage = () => {
                 onClick={() => setActiveTab("contacts")}
                 className={`px-8 py-4 text-sm font-semibold border-b-3 transition-all ${
                   activeTab === "contacts"
-                    ? "border-primary text-primary bg-white"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    ? "border-primary text-primary bg-[var(--card-surface)]"
+                    : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
                 }`}
               >
                 Contact Forms ({submissions.totalContacts})
@@ -465,44 +466,44 @@ const AdminPage = () => {
             {activeTab === "orders" && (
               <div className="space-y-4">
                 {submissions.bookings.length === 0 ? (
-                  <div className="text-center py-16 text-gray-500">
-                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="text-center py-16 text-[var(--muted-foreground)]">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-[var(--border)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     <p className="text-lg font-medium">No booking requests yet.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                    <table className="min-w-full divide-y divide-[var(--border)]">
+                      <thead className="bg-gradient-to-r from-[var(--surface-alt)] to-[var(--surface)]">
                         <tr>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Date
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Customer
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Contact
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Location
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Services
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-[var(--card-surface)] divide-y divide-[var(--border)]">
                         {submissions.bookings.map((booking) => (
-                          <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <tr key={booking._id} className="hover:bg-[var(--surface-alt)] transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--muted-foreground)]">
                               {new Date(booking.createdAt).toLocaleDateString('en-US', {
                                 month: 'short',
                                 day: 'numeric',
@@ -512,23 +513,23 @@ const AdminPage = () => {
                               })}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-semibold text-gray-900">{booking.customer_name}</div>
-                              <div className="text-sm text-gray-500">{booking.customer_email}</div>
+                              <div className="text-sm font-semibold text-[var(--foreground)]">{booking.customer_name}</div>
+                              <div className="text-sm text-[var(--muted-foreground)]">{booking.customer_email}</div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--muted-foreground)]">
                               {booking.customer_phone}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--muted-foreground)]">
                               {booking.customer_city && booking.customer_state
                                 ? `${booking.customer_city}, ${booking.customer_state}`
                                 : booking.customer_city || booking.customer_state || "-"}
                               {booking.customer_date && (
-                                <div className="text-xs text-gray-400 mt-1">
+                                <div className="text-xs text-[var(--border)] mt-1">
                                   Date: {booking.customer_date}
                                 </div>
                               )}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                            <td className="px-6 py-4 text-sm text-[var(--muted-foreground)] max-w-xs">
                               {booking.selected_services &&
                               Object.keys(booking.selected_services).length > 0
                                 ? Object.entries(booking.selected_services)
@@ -540,7 +541,7 @@ const AdminPage = () => {
                                     ))
                                 : "-"}
                               {booking.other_service && (
-                                <div className="text-xs text-gray-400 mt-1 italic">
+                                <div className="text-xs text-[var(--border)] mt-1 italic">
                                   Other: {booking.other_service}
                                 </div>
                               )}
@@ -604,41 +605,41 @@ const AdminPage = () => {
             {activeTab === "contacts" && (
               <div className="space-y-4">
                 {submissions.contacts.length === 0 ? (
-                  <div className="text-center py-16 text-gray-500">
-                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="text-center py-16 text-[var(--muted-foreground)]">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-[var(--border)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <p className="text-lg font-medium">No contact form submissions yet.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                    <table className="min-w-full divide-y divide-[var(--border)]">
+                      <thead className="bg-gradient-to-r from-[var(--surface-alt)] to-[var(--surface)]">
                         <tr>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Date
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Name
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Email
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Phone
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Service
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">
                             Message
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-[var(--card-surface)] divide-y divide-[var(--border)]">
                         {submissions.contacts.map((contact) => (
-                          <tr key={contact._id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <tr key={contact._id} className="hover:bg-[var(--surface-alt)] transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--muted-foreground)]">
                               {new Date(contact.createdAt).toLocaleDateString('en-US', {
                                 month: 'short',
                                 day: 'numeric',
@@ -647,19 +648,19 @@ const AdminPage = () => {
                                 minute: '2-digit'
                               })}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[var(--foreground)]">
                               {contact.name}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--muted-foreground)]">
                               {contact.email}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--muted-foreground)]">
                               {contact.phone}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--muted-foreground)]">
                               {contact.service || "-"}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                            <td className="px-6 py-4 text-sm text-[var(--muted-foreground)] max-w-xs">
                               {contact.message || "-"}
                             </td>
                           </tr>

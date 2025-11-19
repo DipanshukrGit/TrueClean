@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import CalenderIcon from "./Icons/CalenderIcon";
 import DropdownArrowIcon from "./Icons/DropdownArrowIcon";
 import MinusIcon from "./Icons/MinusIcon";
@@ -12,10 +13,12 @@ import WarningIcon from "./Icons/WarningIcon";
 import LoadingSpinnerIcon from "./Icons/LoadingSpinnerIcon";
 
 const BookingCalculator = () => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showServiceWarning, setShowServiceWarning] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ type: "", text: "" });
+  const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     whatsapp: "",
@@ -25,6 +28,39 @@ const BookingCalculator = () => {
     date: "",
     otherService: "",
   });
+
+  // Check authentication and load user data
+  useEffect(() => {
+    const token = localStorage.getItem('user_token');
+    if (token) {
+      // Verify token and get user data
+      fetch("/api/auth/login", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.authenticated && data.user) {
+            setUser(data.user);
+            // Pre-fill form with user data
+            setFormData((prev) => ({
+              ...prev,
+              name: data.user.name || prev.name,
+              email: data.user.email || prev.email,
+              whatsapp: data.user.phone || prev.whatsapp,
+            }));
+          } else {
+            localStorage.removeItem('user_token');
+            localStorage.removeItem('user_data');
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem('user_token');
+          localStorage.removeItem('user_data');
+        });
+    }
+  }, []);
 
   const [expandedServices, setExpandedServices] = useState({});
   const [selectedServices, setSelectedServices] = useState({
@@ -58,6 +94,17 @@ const BookingCalculator = () => {
   };
 
   const toggleCalculator = () => {
+    const token = localStorage.getItem('user_token');
+    
+    // Check if user is logged in
+    if (!token) {
+      // Redirect to login page
+      if (confirm('You need to login to book a cleaning service. Would you like to login now?')) {
+        router.push('/login');
+      }
+      return;
+    }
+
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
 
@@ -181,6 +228,19 @@ const BookingCalculator = () => {
       return;
     }
 
+    // Check authentication before submitting
+    const token = localStorage.getItem('user_token');
+    if (!token) {
+      setSubmitMessage({
+        type: "error",
+        text: "Please login to book a service. Redirecting to login page...",
+      });
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -188,6 +248,7 @@ const BookingCalculator = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: formData.name,
@@ -204,15 +265,15 @@ const BookingCalculator = () => {
       if (response.ok) {
         setSubmitMessage({
           type: "success",
-          text: "Quote request submitted successfully! We'll contact you in 1 Hour.",
+          text: "Booking request submitted successfully! View your bookings in the dashboard.",
         });
 
         // Reset form after a short delay
         setTimeout(() => {
           setFormData({
-            name: "",
-            whatsapp: "",
-            email: "",
+            name: user?.name || "",
+            whatsapp: user?.phone || "",
+            email: user?.email || "",
             state: "",
             city: "",
             date: "",
@@ -230,10 +291,23 @@ const BookingCalculator = () => {
         }, 2000);
       } else {
         const errorData = await response.json();
-        setSubmitMessage({
-          type: "error",
-          text: errorData.error || "Failed to submit quote request. Please try again.",
-        });
+        if (response.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem('user_token');
+          localStorage.removeItem('user_data');
+          setSubmitMessage({
+            type: "error",
+            text: "Your session has expired. Please login again.",
+          });
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
+        } else {
+          setSubmitMessage({
+            type: "error",
+            text: errorData.error || "Failed to submit quote request. Please try again.",
+          });
+        }
       }
     } catch (error) {
       console.error("Error submitting booking:", error);

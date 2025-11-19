@@ -47,6 +47,10 @@ const BookingSchema = new mongoose.Schema(
       enum: ['pending', 'confirmed', 'cancelled', 'completed'],
       default: 'pending',
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

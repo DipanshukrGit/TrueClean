@@ -1,16 +1,26 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Booking from '@/models/Booking';
+import { getTokenFromRequest, verifyToken } from '@/lib/jwt';
 
 export async function POST(request) {
   try {
-    try {
-      await connectDB();
-    } catch (dbError) {
-      console.error('Database connection error:', dbError);
+    await connectDB();
+
+    // Check authentication
+    const token = getTokenFromRequest(request);
+    if (!token) {
       return NextResponse.json(
-        { error: dbError.message || 'Database connection failed. Please check your MongoDB connection configuration.' },
-        { status: 500 }
+        { error: 'Authentication required. Please login to book a service.' },
+        { status: 401 }
+      );
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json(
+        { error: 'Invalid or expired token. Please login again.' },
+        { status: 401 }
       );
     }
 
@@ -42,6 +52,7 @@ export async function POST(request) {
       customer_date: date?.trim() || '',
       other_service: otherService?.trim() || '',
       selected_services: selectedServices || {},
+      user: decoded.userId, // Link booking to user
     });
 
     return NextResponse.json(

@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Logo from "@/Components/Icons/Logo";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { useNavigateToSection } from "@/utils/navigation";
@@ -10,12 +12,20 @@ import MobileMenuIcon from "./Icons/MobileMenuIcon";
 import ThemeToggle from "@/Components/ThemeToggle";
 
 const Navbar = () => {
+  const router = useRouter();
   const navigateToSection = useNavigateToSection();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
   const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const mobileMenuRef = useRef(null);
   const navbarRef = useRef(null);
+
+  // Check if user is logged in
+  useEffect(() => {
+    const token = localStorage.getItem('user_token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -95,8 +105,8 @@ const Navbar = () => {
                 </span>
               </div>
             </a>
-            <a
-              onClick={() => navigateToSection("our-story")}
+            <Link
+              href="/about"
               className="flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal transition-all duration-300 group relative hover:text-[var(--nav-link-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
             >
               <div className="flex items-center">
@@ -109,15 +119,31 @@ const Navbar = () => {
                   About
                 </span>
               </div>
-            </a>
-            <div
-              className="relative"
-              onMouseEnter={() => setIsServicesDropdownOpen(true)}
-              onMouseLeave={() => setIsServicesDropdownOpen(false)}
+            </Link>
+            <Link
+              href="/services"
+              className="flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal transition-all duration-300 group relative hover:text-[var(--nav-link-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
             >
-              <a
-                onClick={() => navigateToSection("services-section")}
-                className="flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal transition-all duration-300 group relative hover:text-[var(--nav-link-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]"
+              <div className="flex items-center">
+                <Star
+                  size={16}
+                  color="var(--nav-star)"
+                  className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0"
+                />
+                <span className="transition-all duration-300 transform group-hover:translate-x-2">
+                  Services
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Contact Us Button - Desktop Only */}
+          <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
+            {isLoggedIn && (
+              <Link
+                href="/bookings"
+                className="flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal transition-all duration-300 group relative hover:text-[var(--nav-link-hover)] px-4 py-2 rounded-lg hover:bg-[var(--nav-surface-hover)]"
               >
                 <div className="flex items-center">
                   <Star
@@ -126,43 +152,23 @@ const Navbar = () => {
                     className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0"
                   />
                   <span className="transition-all duration-300 transform group-hover:translate-x-2">
-                    Services
+                    My Bookings
                   </span>
                 </div>
-              </a>
-
-              {/* Services Dropdown - Removed for landing page only */}
-              {isServicesDropdownOpen && (
-                <div className="">
-                  <div className="h-2"></div>
-                  <div className="absolute top-full left-0 z-50 w-80 bg-[var(--nav-surface)] border border-[var(--nav-border)] rounded-2xl shadow-lg py-4 px-2 z-50 animate-in slide-in-from-top-2 duration-200">
-                    <div
-                      onClick={handleServiceClick}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-[var(--nav-surface-hover)] transition-all duration-200 group"
-                    >
-                      <div className="flex-1">
-                        <h3 className="text-[var(--nav-link)] font-semibold text-sm group-hover:text-[var(--nav-link-hover)] transition-colors duration-200">
-                          View All Services
-                        </h3>
-                        <p className="text-[var(--nav-link-muted)] text-xs mt-1">
-                          Explore our complete range of cleaning services
-                        </p>
-                      </div>
-                      <Star
-                        size={14}
-                        color="var(--nav-star)"
-                        className="opacity-0 group-hover:opacity-100 transition-all duration-200"
-                      />
-                    </div>
-                  </div>
+              </Link>
+            )}
+            {!isLoggedIn && (
+              <Link
+                href="/login"
+                className="flex items-center gap-0 font-work-sans cursor-pointer text-lg font-semibold transition-all duration-300 group relative px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg"
+              >
+                <div className="flex items-center">
+                  <span className="transition-all duration-300">
+                    Login
+                  </span>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Contact Us Button - Desktop Only */}
-          <div className="hidden md:flex items-center gap-3">
-            <ThemeToggle />
+              </Link>
+            )}
             <div onClick={() => navigateToSection("contact-us")}>
               <PrimaryButton
                 variant="secondary"
@@ -218,11 +224,9 @@ const Navbar = () => {
                   </span>
                 </div>
               </a>
-              <a
-                onClick={() => {
-                  navigateToSection("our-story");
-                  setIsMobileMenuOpen(false);
-                }}
+              <Link
+                href="/about"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="block flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal py-2 text-[var(--nav-link)] transition-all duration-300 group relative hover:text-[var(--nav-link-hover)]"
               >
                 <div className="flex items-center">
@@ -235,53 +239,23 @@ const Navbar = () => {
                     About
                   </span>
                 </div>
-              </a>
-              <div>
-                <a
-                  onClick={() => setIsMobileServicesOpen(!isMobileServicesOpen)}
-                  className="block flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal py-2 text-[var(--nav-link)] transition-all duration-300 group relative hover:text-[var(--nav-link-hover)]"
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center">
-                      <Star
-                        size={16}
-                        color="var(--nav-star)"
-                        className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0"
-                      />
-                      <span className="transition-all duration-300 transform group-hover:translate-x-2">
-                        Services
-                      </span>
-                    </div>
-                    <div>
-                      <DropdownArrowIcon
-                        className={`w-5 h-5 transform transition-transform duration-300 ease-in-out ${
-                          isMobileServicesOpen ? "rotate-90" : ""
-                        }`}
-                        color="var(--nav-link)"
-                      />
-                    </div>
-                  </div>
-                </a>
-
-                {/* Mobile Services Submenu */}
-                {isMobileServicesOpen && (
-                  <div className="ml-6 mt-2 space-y-2 animate-in slide-in-from-top-2 duration-200">
-                    <div
-                      onClick={handleServiceClick}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-[var(--nav-surface-hover)] transition-all duration-200 border border-[var(--nav-border-muted)]"
-                    >
-                      <div>
-                        <p className="text-[var(--nav-link)] font-medium text-sm">
-                          View All Services
-                        </p>
-                        <p className="text-[var(--nav-link-muted)] text-xs">
-                          See our complete service overview
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              </Link>
+              <Link
+                href="/services"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal py-2 text-[var(--nav-link)] transition-all duration-300 group relative hover:text-[var(--nav-link-hover)]"
+              >
+                <div className="flex items-center">
+                  <Star
+                    size={16}
+                    color="var(--nav-star)"
+                    className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0"
+                  />
+                  <span className="transition-all duration-300 transform group-hover:translate-x-2">
+                    Services
+                  </span>
+                </div>
+              </Link>
               {/* <div className="pt-4">
               <div
                 onClick={() => {
@@ -298,6 +272,33 @@ const Navbar = () => {
                 </PrimaryButton>
               </div>
             </div> */}
+              {isLoggedIn && (
+                <Link
+                  href="/bookings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block flex items-center gap-0 font-work-sans cursor-pointer text-lg font-normal py-2 text-[var(--nav-link)] transition-all duration-300 group relative hover:text-[var(--nav-link-hover)]"
+                >
+                  <div className="flex items-center">
+                    <Star
+                      size={16}
+                      color="var(--nav-star)"
+                      className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0"
+                    />
+                    <span className="transition-all duration-300 transform group-hover:translate-x-2">
+                      My Bookings
+                    </span>
+                  </div>
+                </Link>
+              )}
+              {!isLoggedIn && (
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block w-full text-center px-4 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-md hover:shadow-lg mt-4"
+                >
+                  Login
+                </Link>
+              )}
               <a
                 onClick={() => {
                   navigateToSection("contact-us");
