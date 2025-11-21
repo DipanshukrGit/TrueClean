@@ -40,7 +40,7 @@ TrueClean is a full-stack platform that lets users easily **book home cleaning s
 - JWT for authentication  
 - Bcrypt for password hashing
 
----
+----
 - ## 🚀 Live Demo  
 [Visit TrueClean](https://true-clean.vercel.app/)
 
